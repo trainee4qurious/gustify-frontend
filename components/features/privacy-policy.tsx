@@ -4,7 +4,7 @@ import * as React from "react"
 
 export function PrivacyPolicy() {
     return (
-        <div className="flex flex-col w-full max-w-3xl mx-auto min-h-screen px-4 pb-6 animate-in fade-in duration-500">
+        <div className="flex flex-col w-full max-w-3xl mx-auto min-h-screen px-4 pb-6 pt-9 animate-in fade-in duration-500">
 
             {/* Content */}
             <div className="flex flex-col w-full max-w-2xl mx-auto space-y-8">

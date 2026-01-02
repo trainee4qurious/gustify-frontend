@@ -10,11 +10,41 @@ interface HeaderProps {
     onViewChange?: (view: 'landing' | 'feed' | 'auth' | 'privacy' | 'terms' | 'subscription' | 'recording' | 'processing' | 'summary') => void
     onBack?: () => void
     currentView?: 'landing' | 'feed' | 'auth' | 'privacy' | 'terms' | 'subscription' | 'recording' | 'processing' | 'summary'
+    isLoggedIn?: boolean
+    onLogout?: () => void
 }
 
-export function Header({ onViewChange, onBack, currentView }: HeaderProps) {
+export function Header({ onViewChange, onBack, currentView, isLoggedIn, onLogout }: HeaderProps) {
     const { theme, setTheme } = useTheme()
     const [isMenuOpen, setIsMenuOpen] = React.useState(false)
+    const menuRef = React.useRef<HTMLDivElement>(null)
+
+    React.useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false)
+            }
+        }
+        if (isMenuOpen) {
+            document.addEventListener("mousedown", handleClickOutside)
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+        }
+    }, [isMenuOpen])
+
+    const menuItems = isLoggedIn ? [
+        { label: 'Settings', onClick: () => { /* Handle Settings */ setIsMenuOpen(false) } },
+        { label: 'Subscription', onClick: () => { onViewChange?.('subscription'); setIsMenuOpen(false) }, color: 'text-[#EBB305]' },
+        { label: 'Feedback', onClick: () => { /* Handle Feedback */ setIsMenuOpen(false) } },
+        { label: 'Privacy Policy', onClick: () => { onViewChange?.('privacy'); setIsMenuOpen(false) } },
+        { label: 'Terms & Conditions', onClick: () => { onViewChange?.('terms'); setIsMenuOpen(false) } },
+        { label: 'Log out', onClick: () => { onLogout?.(); setIsMenuOpen(false) }, color: 'text-[#EF4444]' },
+    ] : [
+        { label: 'Subscription', onClick: () => { onViewChange?.('subscription'); setIsMenuOpen(false) }, color: 'text-[#EBB305]' },
+        { label: 'Privacy Policy', onClick: () => { onViewChange?.('privacy'); setIsMenuOpen(false) } },
+        { label: 'Terms & Conditions', onClick: () => { onViewChange?.('terms'); setIsMenuOpen(false) } },
+    ]
 
     return (
         <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-20 py-6" style={{ gap: '8px' }}>
@@ -27,7 +57,7 @@ export function Header({ onViewChange, onBack, currentView }: HeaderProps) {
                         : "inset 0px 4px 4px 0px #FFC9B280, inset -2px 0px 4px 0px #FFC9B280, inset 4px 0px 6px 0px #FFC9B280"
                 }}
             >
-                <div className="flex items-center cursor-pointer" onClick={() => onViewChange?.('landing')}>
+                <div className="flex items-center cursor-pointer" onClick={() => onViewChange?.(isLoggedIn ? 'feed' : 'landing')}>
                     {/* Logo - click to go home */}
                     <div className="w-8 h-8 text-foreground">
                         <Image
@@ -41,101 +71,69 @@ export function Header({ onViewChange, onBack, currentView }: HeaderProps) {
                     </div>
                 </div>
 
-                <div className="flex items-center relative">
+                <div className="flex items-center relative gap-2">
+                    <Button
+                        hidden={currentView === 'subscription' || currentView === 'privacy' || currentView === 'terms' || currentView === 'auth' || currentView === 'landing'}
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Search"
+                        className="hover:bg-black/5 rounded-full"
+                    >
+                        <Search className="w-5 h-5 text-[#373131]" />
+                    </Button>
+
                     {(currentView === 'privacy' || currentView === 'terms' || currentView === 'subscription') ? (
                         <Button
                             variant="ghost"
                             size="icon"
                             aria-label="Close"
-                            className="hover:bg-orange-100/50"
+                            className="hover:bg-black/5 rounded-full"
                             onClick={() => onBack ? onBack() : onViewChange?.('landing')}
                         >
-                            <X className="w-5 h-5 text-foreground/80" />
+                            <X className="w-5 h-5 text-[#373131]" />
                         </Button>
                     ) : (
                         <Button
                             variant="ghost"
                             size="icon"
                             aria-label="Menu"
-                            className="hover:bg-orange-100/50"
+                            className="hover:bg-black/5 rounded-full"
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                         >
-                            <MoreHorizontal className="w-5 h-5 text-foreground/80" />
+                            <MoreHorizontal className="w-5 h-5 text-[#373131]" />
                         </Button>
                     )}
 
                     {isMenuOpen && (
                         <div
-                            className="absolute top-full right-[-26px] mt-5 min-w-[200px] backdrop-blur-md flex flex-col items-end z-50 shadow-lg"
+                            ref={menuRef}
+                            className="absolute top-full right-[-26px] mt-5 min-w-[220px] backdrop-blur-md flex flex-col z-50 shadow-lg"
                             style={{
-                                background: '#3731310A',
-                                gap: '3px',
-                                paddingTop: '6px',
-                                paddingBottom: '6px',
+                                background: '#FEF1E9F2',
+                                gap: '0px',
+                                padding: '8px 0',
                                 borderRadius: '15px',
-                                border: '1px solid #37313124'
+                                border: '1px solid #3731311A'
                             }}
                         >
-                            <button
-                                onClick={() => {
-                                    onViewChange?.('subscription')
-                                    setIsMenuOpen(false)
-                                }}
-                                className="w-full text-left text-[#EBB305] transition-colors"
-                                style={{
-                                    paddingTop: '6px',
-                                    paddingRight: '14px',
-                                    paddingBottom: '6px',
-                                    paddingLeft: '14px',
-                                    fontWeight: 500,
-                                    fontSize: '16px',
-                                    lineHeight: '150%'
-                                }}
-                            >
-                                Subscription
-                            </button>
-                            <div className="w-full px-[14px]">
-                                <div className="h-[1px] bg-[#000000]/10 w-full" />
-                            </div>
-                            <button
-                                onClick={() => {
-                                    onViewChange?.('privacy')
-                                    setIsMenuOpen(false)
-                                }}
-                                className="w-full text-left text-[#373131] transition-colors"
-                                style={{
-                                    paddingTop: '6px',
-                                    paddingRight: '14px',
-                                    paddingBottom: '6px',
-                                    paddingLeft: '14px',
-                                    fontWeight: 500,
-                                    fontSize: '16px',
-                                    lineHeight: '150%'
-                                }}
-                            >
-                                Privacy Policy
-                            </button>
-                            <div className="w-full px-[14px]">
-                                <div className="h-[1px] bg-[#000000]/10 w-full" />
-                            </div>
-                            <button
-                                onClick={() => {
-                                    onViewChange?.('terms')
-                                    setIsMenuOpen(false)
-                                }}
-                                className="w-full text-left text-[#373131] hover:bg-black/5 transition-colors"
-                                style={{
-                                    paddingTop: '6px',
-                                    paddingRight: '14px',
-                                    paddingBottom: '6px',
-                                    paddingLeft: '14px',
-                                    fontWeight: 500,
-                                    fontSize: '16px',
-                                    lineHeight: '150%'
-                                }}
-                            >
-                                Terms & Conditions
-                            </button>
+                            {menuItems.map((item, index) => (
+                                <React.Fragment key={item.label}>
+                                    <button
+                                        onClick={item.onClick}
+                                        className={`w-full text-left transition-colors px-[18px] py-[10px] hover:bg-black/5 ${item.color || 'text-[#373131]'}`}
+                                        style={{
+                                            fontWeight: 500,
+                                            fontSize: '16px',
+                                            lineHeight: '150%'
+                                        }}
+                                    >
+                                        {item.label}
+                                    </button>
+                                    {index < menuItems.length - 1 && (
+                                        <div className="mx-[18px] h-[1px] bg-[#373131]/10" />
+                                    )}
+                                </React.Fragment>
+                            ))}
                         </div>
                     )}
                 </div>

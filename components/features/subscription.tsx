@@ -15,7 +15,7 @@ export function Subscription({ onViewChange }: SubscriptionProps) {
         <div className="flex flex-col w-full max-w-3xl mx-auto min-h-screen px-4 pb-6 animate-in fade-in duration-500 items-center">
 
             {/* Content */}
-            <div className="flex flex-col w-full max-w-xl mx-auto space-y-8 mt-6">
+            <div className="flex flex-col w-full max-w-xl mx-auto space-y-8 mt-9">
                 <div className="space-y-4">
                     <h1 className="text-[32px] font-bold text-[#DEA807] leading-[120%]">
                         Summarize More.<br />

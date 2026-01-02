@@ -54,6 +54,13 @@ export default function Home() {
     }
   }
 
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    setView('landing')
+    setHistory([])
+    setPendingAction(null)
+  }
+
   const currentActiveView = view === 'auth' ? (history[history.length - 1] || 'landing') : view;
 
   return (
@@ -65,10 +72,16 @@ export default function Home() {
           }`}
       />
       {!['summary', 'processing', 'recording'].includes(view) && (
-        <Header onViewChange={handleViewChange} onBack={handleBack} currentView={view} />
+        <Header
+          onViewChange={handleViewChange}
+          onBack={handleBack}
+          currentView={view}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+        />
       )}
 
-      <div className="container px-4 mx-auto pt-32 md:pt-34 pb-10">
+      <div className="container px-4 mx-auto pt-20 md:pt-20 pb-10">
 
         {currentActiveView === 'landing' && (
           <div className="flex flex-col items-center">
@@ -116,7 +129,7 @@ export default function Home() {
           </div>
         )}
 
-        {currentActiveView === 'feed' && <Feed />}
+        {currentActiveView === 'feed' && <Feed onAction={handleAction} />}
 
         {currentActiveView === 'privacy' && <PrivacyPolicy />}
 
@@ -141,7 +154,10 @@ export default function Home() {
               setPendingAction(null)
               setView('feed')
             }}
+            onViewChange={handleViewChange}
             showAudioPlayer={pendingAction === 'mic'}
+            isLoggedIn={isLoggedIn}
+            onLogout={handleLogout}
           />
         )}
 
